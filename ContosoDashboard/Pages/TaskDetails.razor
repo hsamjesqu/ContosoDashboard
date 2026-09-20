@@ -1,0 +1,55 @@
+@page "/tasks/{TaskId:int}"
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Forms
+@attribute [Authorize]
+@inject ITaskService TaskService
+@inject IDocumentService DocumentService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+
+<PageTitle>Task Details - ContosoDashboard</PageTitle>
+
+<div class="container-fluid">
+    @if (task == null)
+    {
+        <div class="alert alert-warning">Task not found or you are not authorized to view it.</div>
+    }
+    else
+    {
+        <div class="d-flex justify-content-between align-items-center mb-4"><div><a href="/tasks">My Tasks</a><h1>@task.Title</h1></div><span class="badge bg-primary">@task.Status</span></div>
+        <div class="row g-4">
+            <div class="col-md-7"><div class="card"><div class="card-header">Task information</div><div class="card-body"><p>@task.Description</p><dl class="row"><dt class="col-sm-4">Assigned to</dt><dd class="col-sm-8">@task.AssignedUser.DisplayName</dd><dt class="col-sm-4">Project</dt><dd class="col-sm-8">@(task.Project?.Name ?? "Personal")</dd><dt class="col-sm-4">Due date</dt><dd class="col-sm-8">@(task.DueDate?.ToString("MMM dd, yyyy") ?? "Not set")</dd></dl></div></div></div>
+            <div class="col-md-5"><div class="card"><div class="card-header d-flex justify-content-between"><span>Related documents</span><label class="btn btn-sm btn-outline-primary">Attach<InputFile OnChange="Attach" hidden /></label></div><div class="card-body">@if (documents.Count == 0) { <p class="text-muted">No documents attached.</p> } else { <div class="list-group list-group-flush">@foreach (var document in documents) { <a class="list-group-item list-group-item-action" href="/document-file/@document.DocumentId?mode=download">@document.Title <small class="text-muted">(@document.Category)</small></a> }</div> }</div></div></div>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(error)) { <div class="alert alert-danger mt-3">@error</div> }
+    }
+</div>
+
+@code {
+    [Parameter] public int TaskId { get; set; }
+    private TaskItem? task;
+    private List<Document> documents = [];
+    private int currentUserId;
+    private string? error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        int.TryParse(state.User.FindFirstValue(ClaimTypes.NameIdentifier), out currentUserId);
+        task = await TaskService.GetTaskByIdAsync(TaskId, currentUserId);
+        if (task != null) documents = await DocumentService.GetTaskDocumentsAsync(TaskId, currentUserId);
+    }
+
+    private async Task Attach(InputFileChangeEventArgs args)
+    {
+        var file = args.File;
+        if (task == null) return;
+        try
+        {
+            await using var stream = file.OpenReadStream(25 * 1024 * 1024);
+            await DocumentService.UploadAsync(new DocumentUploadRequest { Content = stream, FileName = file.Name, ContentType = file.ContentType, Title = Path.GetFileNameWithoutExtension(file.Name), Category = DocumentCategories.ProjectDocuments, ProjectId = task.ProjectId, TaskId = task.TaskId }, currentUserId);
+            documents = await DocumentService.GetTaskDocumentsAsync(TaskId, currentUserId);
+        }
+        catch (Exception ex) { error = ex.Message; }
+    }
+}

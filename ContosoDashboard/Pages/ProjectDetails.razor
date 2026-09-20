@@ -5,6 +5,7 @@
 @using System.Security.Claims
 @attribute [Authorize]
 @inject IProjectService ProjectService
+@inject IDocumentService DocumentService
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
@@ -151,6 +152,14 @@
                         }
                     </div>
                 </div>
+
+                <div class="card mt-4">
+                    <div class="card-header"><h5 class="mb-0">Project Documents</h5></div>
+                    <div class="card-body">
+                        @if (!projectDocuments.Any()) { <p class="text-muted">No project documents.</p> }
+                        else { <div class="list-group list-group-flush">@foreach (var document in projectDocuments) { <div class="list-group-item d-flex justify-content-between"><a href="/document-file/@document.DocumentId?mode=download">@document.Title</a>@if (currentUserId == project.ProjectManagerId) { <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteDocument(document.DocumentId)"><i class="bi bi-trash"></i></button> }</div> }</div> }
+                    </div>
+                </div>
             </div>
 
             <div class="col-md-4">
@@ -237,6 +246,7 @@
     public int ProjectId { get; set; }
 
     private Project? project;
+    private List<Document> projectDocuments = [];
     private int currentUserId = 0;
 
     protected override async Task OnInitializedAsync()
@@ -253,12 +263,19 @@
         if (currentUserId > 0)
         {
             project = await ProjectService.GetProjectByIdAsync(ProjectId, currentUserId);
+            if (project != null) projectDocuments = await DocumentService.GetProjectDocumentsAsync(ProjectId, currentUserId);
         }
         
         if (project == null)
         {
             NavigationManager.NavigateTo("/projects");
         }
+    }
+
+    private async Task DeleteDocument(int documentId)
+    {
+        if (await DocumentService.DeleteAsync(documentId, currentUserId))
+            projectDocuments = await DocumentService.GetProjectDocumentsAsync(ProjectId, currentUserId);
     }
 
     private string GetStatusColor(ProjectStatus status)

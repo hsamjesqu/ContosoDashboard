@@ -17,10 +17,10 @@ description: "Task list for document upload and management"
 
 **Purpose**: Establish the test project, configuration, and storage conventions needed by the feature.
 
-- [ ] T001 Create the `ContosoDashboard.Tests/ContosoDashboard.Tests.csproj` xUnit test project targeting `net8.0` with EF Core InMemory and a project reference to `ContosoDashboard/ContosoDashboard.csproj`.
-- [ ] T002 [P] Add the test project to `ContosoDashboard.sln` or create the solution file at `ContosoDashboard.sln` if the repository has no solution file.
-- [ ] T003 [P] Add document storage and upload limits to `ContosoDashboard/appsettings.json` and `ContosoDashboard/appsettings.Development.json`, including an upload root outside `wwwroot`, a 25 MB per-file limit, and the allowed extensions/content types.
-- [ ] T004 [P] Add `AppData/uploads/` to `ContosoDashboard/.gitignore` and document the local storage directory in `ContosoDashboard/README.md`.
+- [X] T001 Create the `ContosoDashboard.Tests/ContosoDashboard.Tests.csproj` xUnit test project targeting `net8.0` with EF Core InMemory and a project reference to `ContosoDashboard/ContosoDashboard.csproj`.
+- [X] T002 [P] Add the test project to `ContosoDashboard.sln` or create the solution file at `ContosoDashboard.sln` if the repository has no solution file.
+- [X] T003 [P] Add document storage and upload limits to `ContosoDashboard/appsettings.json` and `ContosoDashboard/appsettings.Development.json`, including an upload root outside `wwwroot`, a 25 MB per-file limit, and the allowed extensions/content types.
+- [X] T004 [P] Add `AppData/uploads/` to `ContosoDashboard/.gitignore` and document the local storage directory in `ContosoDashboard/README.md`.
 
 ---
 
@@ -30,18 +30,18 @@ description: "Task list for document upload and management"
 
 **Checkpoint**: The foundation is ready when the database model builds, storage paths are safe, scanning can fail closed, and service tests can create authorized test users and projects.
 
-- [ ] T005 [P] Create `ContosoDashboard/Models/Document.cs` with integer `DocumentId`, required title/category, optional description/project/task fields, original filename, relative file path, MIME type limited to 255 characters, file size capped at 25 MB, uploader, UTC upload date, and deletion state.
-- [ ] T006 [P] Create `ContosoDashboard/Models/DocumentShare.cs` with nullable user/project targets, sharing actor, UTC shared date, and revocation date, enforcing exactly one target in the service validation path.
-- [ ] T007 [P] Create `ContosoDashboard/Models/DocumentActivity.cs` with nullable document reference for retained deletion history, actor, action, detail, and UTC occurrence date.
-- [ ] T008 [P] Create `ContosoDashboard/Models/DocumentTag.cs` with document reference, normalized bounded tag value, and duplicate-prevention fields.
-- [ ] T009 [P] Create `ContosoDashboard/Models/DocumentCategory.cs` with the text values `Project Documents`, `Team Resources`, `Personal Files`, `Reports`, `Presentations`, and `Other`.
-- [ ] T010 Configure `ContosoDashboard/Data/ApplicationDbContext.cs` for Document, DocumentShare, DocumentActivity, and DocumentTag relationships, integer keys, indexes for uploader/project/task/category/date/search fields, and audit retention-safe delete behavior.
-- [ ] T011 Create `ContosoDashboard/Services/FileStorageService.cs` with `IFileStorageService`, local upload/delete/download operations, GUID-based relative paths in `{userId}/{projectId-or-personal}/{guid}.{extension}` format, root-bound path validation, and no user-supplied filename use in storage paths.
-- [ ] T012 Create `ContosoDashboard/Services/FileScanService.cs` with `IFileScanService` and a local training implementation that returns an explicit safe, rejected, or unavailable result; unavailable or incomplete scanning must fail closed.
-- [ ] T013 Create `ContosoDashboard/Services/DocumentAuditService.cs` with audit-record creation and retention-aware query methods for uploads, downloads, previews, replacements, deletions, and shares.
-- [ ] T014 Register document entities, `IFileStorageService`, `IFileScanService`, and `DocumentAuditService` in `ContosoDashboard/Program.cs` and preserve the existing authorization/security-header middleware.
-- [ ] T015 Add foundational storage and scan tests in `ContosoDashboard.Tests/Services/FileStorageServiceTests.cs` covering path traversal rejection, GUID path generation, root containment, cleanup, allowed file limits, and fail-closed unavailable scanning.
-- [ ] T016 Add shared authorized-user/project fixtures in `ContosoDashboard.Tests/Fixtures/DocumentTestFixture.cs` for owner, project member, project manager, administrator, non-member, and task-linked project scenarios.
+- [X] T005 [P] Create `ContosoDashboard/Models/Document.cs` with integer `DocumentId`, required title/category, optional description/project/task fields, original filename, relative file path, MIME type limited to 255 characters, file size capped at 25 MB, uploader, UTC upload date, and deletion state.
+- [X] T006 [P] Create `ContosoDashboard/Models/DocumentShare.cs` with nullable user/project targets, sharing actor, UTC shared date, and revocation date, enforcing exactly one target in the service validation path.
+- [X] T007 [P] Create `ContosoDashboard/Models/DocumentActivity.cs` with nullable document reference for retained deletion history, actor, action, detail, and UTC occurrence date.
+- [X] T008 [P] Create `ContosoDashboard/Models/DocumentTag.cs` with document reference, normalized bounded tag value, and duplicate-prevention fields.
+- [X] T009 [P] Create `ContosoDashboard/Models/DocumentCategory.cs` with the text values `Project Documents`, `Team Resources`, `Personal Files`, `Reports`, `Presentations`, and `Other`.
+- [X] T010 Configure `ContosoDashboard/Data/ApplicationDbContext.cs` for Document, DocumentShare, DocumentActivity, and DocumentTag relationships, integer keys, indexes for uploader/project/task/category/date/search fields, and audit retention-safe delete behavior.
+- [X] T011 Create `ContosoDashboard/Services/FileStorageService.cs` with `IFileStorageService`, local upload/delete/download operations, GUID-based relative paths in `{userId}/{projectId-or-personal}/{guid}.{extension}` format, root-bound path validation, and no user-supplied filename use in storage paths.
+- [X] T012 Create `ContosoDashboard/Services/FileScanService.cs` with `IFileScanService` and a local training implementation that returns an explicit safe, rejected, or unavailable result; unavailable or incomplete scanning must fail closed.
+- [X] T013 Create `ContosoDashboard/Services/DocumentAuditService.cs` with audit-record creation and retention-aware query methods for uploads, downloads, previews, replacements, deletions, and shares.
+- [X] T014 Register document entities, `IFileStorageService`, `IFileScanService`, and `DocumentAuditService` in `ContosoDashboard/Program.cs` and preserve the existing authorization/security-header middleware.
+- [X] T015 Add foundational storage and scan tests in `ContosoDashboard.Tests/Services/FileStorageServiceTests.cs` covering path traversal rejection, GUID path generation, root containment, cleanup, allowed file limits, and fail-closed unavailable scanning.
+- [X] T016 Add shared authorized-user/project fixtures in `ContosoDashboard.Tests/Fixtures/DocumentTestFixture.cs` for owner, project member, project manager, administrator, non-member, and task-linked project scenarios.
 
 ---
 
@@ -53,17 +53,17 @@ description: "Task list for document upload and management"
 
 ### Tests for User Story 1
 
-- [ ] T017 [P] [US1] Add upload validation and metadata tests in `ContosoDashboard.Tests/Services/DocumentServiceUploadTests.cs` for per-file title/category, six text categories, optional metadata, MIME types up to 255 characters, and 25 MB size rejection.
-- [ ] T018 [P] [US1] Add upload authorization and ordering tests in `ContosoDashboard.Tests/Services/DocumentServiceUploadTests.cs` proving project membership is required and the sequence is validate -> scan -> save file -> save metadata, with cleanup on failure.
+- [X] T017 [P] [US1] Add upload validation and metadata tests in `ContosoDashboard.Tests/Services/DocumentServiceUploadTests.cs` for per-file title/category, six text categories, optional metadata, MIME types up to 255 characters, and 25 MB size rejection.
+- [X] T018 [P] [US1] Add upload authorization and ordering tests in `ContosoDashboard.Tests/Services/DocumentServiceUploadTests.cs` proving project membership is required and the sequence is validate -> scan -> save file -> save metadata, with cleanup on failure.
 
 ### Implementation for User Story 1
 
-- [ ] T019 [US1] Create `ContosoDashboard/Services/DocumentService.cs` with upload DTOs and validation for allow-listed PDF, Word, Excel, PowerPoint, text, JPEG, and PNG files; enforce 25 MB per file and required per-file title/category.
-- [ ] T020 [US1] Implement the authorized upload workflow in `ContosoDashboard/Services/DocumentService.cs`: validate associations, scan and fail closed, generate a unique path, save the file, persist metadata, create audit activity, and remove partial files/records on failure.
-- [ ] T021 [US1] Add project/task authorization checks and project-member notification creation to `ContosoDashboard/Services/DocumentService.cs` and `ContosoDashboard/Services/NotificationService.cs`, honoring existing in-app notification preferences.
-- [ ] T022 [US1] Create `ContosoDashboard/Pages/Documents.razor` with authenticated multi-file selection, per-file title/category fields, editable batch defaults, optional metadata, project selection, task selection, progress feedback, success/error states, and an upload action calling `DocumentService`.
-- [ ] T023 [US1] Add `Documents` navigation to `ContosoDashboard/Shared/NavMenu.razor` and protect the page with the existing authorization route pattern.
-- [ ] T024 [US1] Add upload configuration binding and service registration in `ContosoDashboard/Program.cs`, including the local upload root outside `wwwroot` and a replaceable scanner implementation.
+- [X] T019 [US1] Create `ContosoDashboard/Services/DocumentService.cs` with upload DTOs and validation for allow-listed PDF, Word, Excel, PowerPoint, text, JPEG, and PNG files; enforce 25 MB per file and required per-file title/category.
+- [X] T020 [US1] Implement the authorized upload workflow in `ContosoDashboard/Services/DocumentService.cs`: validate associations, scan and fail closed, generate a unique path, save the file, persist metadata, create audit activity, and remove partial files/records on failure.
+- [X] T021 [US1] Add project/task authorization checks and project-member notification creation to `ContosoDashboard/Services/DocumentService.cs` and `ContosoDashboard/Services/NotificationService.cs`, honoring existing in-app notification preferences.
+- [X] T022 [US1] Create `ContosoDashboard/Pages/Documents.razor` with authenticated multi-file selection, per-file title/category fields, editable batch defaults, optional metadata, project selection, task selection, progress feedback, success/error states, and an upload action calling `DocumentService`.
+- [X] T023 [US1] Add `Documents` navigation to `ContosoDashboard/Shared/NavMenu.razor` and protect the page with the existing authorization route pattern.
+- [X] T024 [US1] Add upload configuration binding and service registration in `ContosoDashboard/Program.cs`, including the local upload root outside `wwwroot` and a replaceable scanner implementation.
 
 **Checkpoint**: User Story 1 is independently functional when valid multi-file uploads appear in the user's list, all invalid/scanner-unavailable uploads fail without accessible records or orphaned files, and project associations enforce membership.
 
@@ -77,18 +77,18 @@ description: "Task list for document upload and management"
 
 ### Tests for User Story 2
 
-- [ ] T025 [P] [US2] Add authorized list/search/sort/filter tests in `ContosoDashboard.Tests/Services/DocumentServiceQueryTests.cs` for title, description, tags, uploader, project, category, date range, file size, and permission-filtered results.
-- [ ] T026 [P] [US2] Add update/replace/delete authorization tests in `ContosoDashboard.Tests/Services/DocumentServiceManagementTests.cs` for owners, project managers, administrators, non-members, replacement failure preservation, audit retention, and permanent file removal.
-- [ ] T027 [P] [US2] Add authorized file-response tests in `ContosoDashboard.Tests/Pages/DocumentFileTests.cs` for inline PDF/image preview, attachment download, missing/deleted files, and access-safe unauthorized responses.
+- [X] T025 [P] [US2] Add authorized list/search/sort/filter tests in `ContosoDashboard.Tests/Services/DocumentServiceQueryTests.cs` for title, description, tags, uploader, project, category, date range, file size, and permission-filtered results.
+- [X] T026 [P] [US2] Add update/replace/delete authorization tests in `ContosoDashboard.Tests/Services/DocumentServiceManagementTests.cs` for owners, project managers, administrators, non-members, replacement failure preservation, audit retention, and permanent file removal.
+- [X] T027 [P] [US2] Add authorized file-response tests in `ContosoDashboard.Tests/Pages/DocumentFileTests.cs` for inline PDF/image preview, attachment download, missing/deleted files, and access-safe unauthorized responses.
 
 ### Implementation for User Story 2
 
-- [ ] T028 [US2] Extend `ContosoDashboard/Services/DocumentService.cs` with a permission predicate for owner, project member, project manager, administrator, and active explicit share access used consistently by list, search, stream, update, replacement, and delete operations.
-- [ ] T029 [US2] Extend `ContosoDashboard/Services/DocumentService.cs` with paged list/search methods supporting title, description, normalized tags, uploader, project, category, date range, title/date/category/size sorting, and empty-result behavior for up to 500 documents.
-- [ ] T030 [US2] Implement metadata update, replacement, and delete workflows in `ContosoDashboard/Services/DocumentService.cs`, preserving the previous available file when replacement validation/scan/storage fails and retaining `DocumentActivity` records for at least 12 months after activity.
-- [ ] T031 [US2] Create `ContosoDashboard/Pages/DocumentFile.cshtml` and `ContosoDashboard/Pages/DocumentFile.cshtml.cs` with authenticated preview/download handlers that authorize through `DocumentService` before opening a stream, never expose filesystem paths, and select inline versus attachment disposition safely.
+- [X] T028 [US2] Extend `ContosoDashboard/Services/DocumentService.cs` with a permission predicate for owner, project member, project manager, administrator, and active explicit share access used consistently by list, search, stream, update, replacement, and delete operations.
+- [X] T029 [US2] Extend `ContosoDashboard/Services/DocumentService.cs` with paged list/search methods supporting title, description, normalized tags, uploader, project, category, date range, title/date/category/size sorting, and empty-result behavior for up to 500 documents.
+- [X] T030 [US2] Implement metadata update, replacement, and delete workflows in `ContosoDashboard/Services/DocumentService.cs`, preserving the previous available file when replacement validation/scan/storage fails and retaining `DocumentActivity` records for at least 12 months after activity.
+- [X] T031 [US2] Create `ContosoDashboard/Pages/DocumentFile.cshtml` and `ContosoDashboard/Pages/DocumentFile.cshtml.cs` with authenticated preview/download handlers that authorize through `DocumentService` before opening a stream, never expose filesystem paths, and select inline versus attachment disposition safely.
 - [ ] T032 [US2] Complete `ContosoDashboard/Pages/Documents.razor` with list/search/filter/sort controls, metadata edit and replacement UI, delete confirmation, preview/download links, empty/loading/error states, and accessible-action visibility.
-- [ ] T033 [US2] Add document count and recent-document query methods to `ContosoDashboard/Services/DashboardService.cs`, then add the five most recent documents and the document count summary to `ContosoDashboard/Pages/Index.razor`.
+- [X] T033 [US2] Add document count and recent-document query methods to `ContosoDashboard/Services/DashboardService.cs`, then add the five most recent documents and the document count summary to `ContosoDashboard/Pages/Index.razor`.
 
 **Checkpoint**: User Story 2 is independently functional when all document queries are permission-filtered, supported files preview/download only after authorization, owners can manage their documents, and project managers/admins receive only their allowed elevated actions.
 
@@ -102,17 +102,17 @@ description: "Task list for document upload and management"
 
 ### Tests for User Story 3
 
-- [ ] T034 [P] [US3] Add sharing authorization and recipient tests in `ContosoDashboard.Tests/Services/DocumentServiceSharingTests.cs` for selected-user sharing, existing project-team sharing, duplicate/revoked shares, notification creation, and deleted-document visibility.
-- [ ] T035 [P] [US3] Add task-detail document workflow tests in `ContosoDashboard.Tests/Components/TaskDetailsWorkflowTests.cs` for authorized task access, inherited project association, related-document listing, and unauthorized task access.
+- [X] T034 [P] [US3] Add sharing authorization and recipient tests in `ContosoDashboard.Tests/Services/DocumentServiceSharingTests.cs` for selected-user sharing, existing project-team sharing, duplicate/revoked shares, notification creation, and deleted-document visibility.
+- [X] T035 [P] [US3] Add task-detail document workflow tests in `ContosoDashboard.Tests/Components/TaskDetailsWorkflowTests.cs` for authorized task access, inherited project association, related-document listing, and unauthorized task access.
 
 ### Implementation for User Story 3
 
-- [ ] T036 [US3] Extend `ContosoDashboard/Services/DocumentService.cs` with share, revoke, shared-with-me, project-document, and task-document methods enforcing owner/project membership rules and creating audit entries.
-- [ ] T037 [US3] Add share-recipient notification creation in `ContosoDashboard/Services/DocumentService.cs` and `ContosoDashboard/Services/NotificationService.cs`, including project-member notifications only when in-app preferences permit them.
-- [ ] T038 [US3] Create `ContosoDashboard/Pages/TaskDetails.razor` with route `/tasks/{taskId:int}`, authorized task loading, related-document list, upload flow inheriting the task's project, and access-denied/not-found behavior.
+- [X] T036 [US3] Extend `ContosoDashboard/Services/DocumentService.cs` with share, revoke, shared-with-me, project-document, and task-document methods enforcing owner/project membership rules and creating audit entries.
+- [X] T037 [US3] Add share-recipient notification creation in `ContosoDashboard/Services/DocumentService.cs` and `ContosoDashboard/Services/NotificationService.cs`, including project-member notifications only when in-app preferences permit them.
+- [X] T038 [US3] Create `ContosoDashboard/Pages/TaskDetails.razor` with route `/tasks/{taskId:int}`, authorized task loading, related-document list, upload flow inheriting the task's project, and access-denied/not-found behavior.
 - [ ] T039 [US3] Extend `ContosoDashboard/Pages/ProjectDetails.razor` with an authorized project-documents section and project-manager upload/delete actions.
 - [ ] T040 [US3] Extend `ContosoDashboard/Pages/Documents.razor` with “Shared with Me,” selected-user sharing, project-team sharing for project documents, revoke actions, and recipient notification states.
-- [ ] T041 [US3] Add task-detail navigation from `ContosoDashboard/Pages/Tasks.razor` and add the task-detail route to the workflow links without removing existing task status behavior.
+- [X] T041 [US3] Add task-detail navigation from `ContosoDashboard/Pages/Tasks.razor` and add the task-detail route to the workflow links without removing existing task status behavior.
 
 **Checkpoint**: User Story 3 is independently functional when project/team permissions, explicit shares, notifications, task attachments, project documents, and dashboard recent documents all work without bypassing service authorization.
 
@@ -126,13 +126,13 @@ description: "Task list for document upload and management"
 
 ### Tests for User Story 4
 
-- [ ] T042 [P] [US4] Add audit event tests in `ContosoDashboard.Tests/Services/DocumentAuditServiceTests.cs` for all required actions, actor/document/timestamp fields, deletion retention, and 12-month minimum availability.
-- [ ] T043 [P] [US4] Add administrator report authorization and aggregation tests in `ContosoDashboard.Tests/Services/DocumentReportTests.cs` for document types, active uploaders, access patterns, empty reports, and non-administrator denial.
+- [X] T042 [P] [US4] Add audit event tests in `ContosoDashboard.Tests/Services/DocumentAuditServiceTests.cs` for all required actions, actor/document/timestamp fields, deletion retention, and 12-month minimum availability.
+- [X] T043 [P] [US4] Add administrator report authorization and aggregation tests in `ContosoDashboard.Tests/Services/DocumentReportTests.cs` for document types, active uploaders, access patterns, empty reports, and non-administrator denial.
 
 ### Implementation for User Story 4
 
-- [ ] T044 [US4] Complete audit calls in `ContosoDashboard/Services/DocumentService.cs` and `ContosoDashboard/Pages/DocumentFile.cshtml.cs` for uploads, downloads, previews, replacements, deletions, and shares without exposing sensitive filesystem details.
-- [ ] T045 [US4] Add administrator-only report query methods to `ContosoDashboard/Services/DocumentAuditService.cs` for document types, active uploaders, access patterns, and retained activity with empty-result behavior.
+- [X] T044 [US4] Complete audit calls in `ContosoDashboard/Services/DocumentService.cs` and `ContosoDashboard/Pages/DocumentFile.cshtml.cs` for uploads, downloads, previews, replacements, deletions, and shares without exposing sensitive filesystem details.
+- [X] T045 [US4] Add administrator-only report query methods to `ContosoDashboard/Services/DocumentAuditService.cs` for document types, active uploaders, access patterns, and retained activity with empty-result behavior.
 - [ ] T046 [US4] Create `ContosoDashboard/Pages/Reports.razor` with administrator authorization, report filters, aggregate display, empty/error states, and denial behavior for non-administrators.
 - [ ] T047 [US4] Add the administrator reports link to `ContosoDashboard/Shared/NavMenu.razor` with role-aware visibility while retaining server-side authorization enforcement.
 

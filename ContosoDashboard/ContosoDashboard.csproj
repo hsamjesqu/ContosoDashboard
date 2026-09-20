@@ -17,4 +17,8 @@
     <PackageReference Include="Microsoft.Identity.Web.UI" Version="2.15.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="AppData\uploads\**" CopyToOutputDirectory="Never" />
+  </ItemGroup>
+
 </Project>

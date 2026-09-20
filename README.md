@@ -234,6 +234,17 @@ ContosoDashboard/
 
 ## Configuration
 
+### Document Management
+
+Uploaded documents are stored locally under `ContosoDashboard/AppData/uploads`, outside
+`wwwroot`, and are served only through authorized server handlers. The directory is created
+on demand and is ignored by Git. The training scanner fails closed when it cannot explicitly
+approve a file; production deployments must replace it with a real malware-scanning service.
+
+To reset document metadata during local validation, remove the LocalDB database and delete
+`ContosoDashboard/AppData/uploads`. See `specs/001-document-upload-management/quickstart.md`
+for the upload, authorization, sharing, task, and audit scenarios.
+
 ### Database Connection
 
 The default connection string in `appsettings.json` uses SQL Server LocalDB:

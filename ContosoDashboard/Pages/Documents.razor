@@ -1,0 +1,113 @@
+@page "/documents"
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Forms
+@attribute [Authorize]
+@inject IDocumentService DocumentService
+@inject IUserService UserService
+@inject IProjectService ProjectService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<PageTitle>Documents - ContosoDashboard</PageTitle>
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div><h1>Documents</h1><p class="text-muted mb-0">Authorized project, task, personal, and shared files.</p></div>
+        <label class="btn btn-primary"><i class="bi bi-upload"></i> Select files<InputFile OnChange="SelectFiles" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.jpg,.jpeg,.png" hidden /></label>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(error)) { <div class="alert alert-danger" role="alert">@error</div> }
+    @if (!string.IsNullOrWhiteSpace(success)) { <div class="alert alert-success" role="status">@success</div> }
+
+    @if (selectedFiles.Count > 0)
+    {
+        <section class="card mb-4" aria-labelledby="upload-heading">
+            <div class="card-header"><h2 id="upload-heading" class="h5 mb-0">Upload files</h2></div>
+            <div class="card-body">
+                @foreach (var file in selectedFiles)
+                {
+                    <div class="row g-2 mb-2 align-items-end">
+                        <div class="col-md-4"><label class="form-label" for="title-@file.Name">Title for @file.Name</label><input id="title-@file.Name" class="form-control" @bind="titles[file.Name]" /></div>
+                        <div class="col-md-3"><label class="form-label" for="category-@file.Name">Category</label><select id="category-@file.Name" class="form-select" @bind="categories[file.Name]">@foreach (var category in DocumentCategories.All) { <option value="@category">@category</option> }</select></div>
+                        <div class="col-md-3"><label class="form-label" for="description-@file.Name">Description</label><input id="description-@file.Name" class="form-control" @bind="descriptions[file.Name]" /></div>
+                        <div class="col-md-2 text-muted">@file.Size bytes</div>
+                    </div>
+                }
+                <button class="btn btn-success" @onclick="UploadFiles" disabled="@uploading"><i class="bi bi-cloud-arrow-up"></i> @(uploading ? "Uploading..." : "Upload")</button>
+            </div>
+        </section>
+    }
+
+    <section class="card mb-4" aria-labelledby="sharing-heading"><div class="card-header"><h2 id="sharing-heading" class="h5 mb-0">Share a document</h2></div><div class="card-body"><div class="row g-2 align-items-end"><div class="col-md-4"><label class="form-label" for="share-document">Document</label><select id="share-document" class="form-select" @bind="shareDocumentId"><option value="0">Select a document</option>@foreach (var document in documents ?? []) { if (document.UploadedByUserId == currentUserId) { <option value="@document.DocumentId">@document.Title</option> } }</select></div><div class="col-md-4"><label class="form-label" for="share-user">Recipient</label><select id="share-user" class="form-select" @bind="shareUserId"><option value="0">Select a user</option>@foreach (var user in users.Where(u => u.UserId != currentUserId)) { <option value="@user.UserId">@user.DisplayName</option> }</select></div><div class="col-md-2"><button class="btn btn-outline-primary w-100" @onclick="ShareDocument">Share</button></div></div></div></section>
+
+    <div class="row g-2 mb-3">
+        <div class="col-md-5"><label class="visually-hidden" for="document-search">Search documents</label><input id="document-search" class="form-control" placeholder="Search title, description, tags" @bind="search" @bind:event="oninput" /></div>
+        <div class="col-md-3"><label class="visually-hidden" for="document-category">Filter category</label><select id="document-category" class="form-select" @bind="category"><option value="">All categories</option>@foreach (var value in DocumentCategories.All) { <option value="@value">@value</option> }</select></div>
+        <div class="col-md-2"><button class="btn btn-outline-secondary w-100" @onclick="LoadDocuments">Apply filters</button></div>
+    </div>
+
+    @if (documents == null) { <p><em>Loading documents...</em></p> }
+    else if (documents.Count == 0) { <div class="alert alert-info">No documents are available.</div> }
+    else
+    {
+        <div class="table-responsive"><table class="table table-hover align-middle"><thead><tr><th>Title</th><th>Category</th><th>Uploaded</th><th>Size</th><th>Actions</th></tr></thead><tbody>
+        @foreach (var document in documents)
+        {
+            <tr><td><strong>@document.Title</strong><br /><small class="text-muted">@document.OriginalFileName</small></td><td>@document.Category</td><td>@document.UploadedDate.ToLocalTime().ToString("MMM dd, yyyy")</td><td>@FormatSize(document.FileSize)</td><td><a class="btn btn-sm btn-outline-primary me-1" href="/document-file/@document.DocumentId?mode=preview" target="_blank" title="Preview"><i class="bi bi-eye"></i></a><a class="btn btn-sm btn-outline-secondary me-1" href="/document-file/@document.DocumentId?mode=download" title="Download"><i class="bi bi-download"></i></a><button class="btn btn-sm btn-outline-danger" @onclick="() => Delete(document.DocumentId)" title="Delete"><i class="bi bi-trash"></i></button></td></tr>
+        }
+        </tbody></table></div>
+    }
+    @if (sharedDocuments.Count > 0) { <h2 class="h5 mt-4">Shared with Me</h2><div class="list-group">@foreach (var document in sharedDocuments) { <a class="list-group-item list-group-item-action" href="/document-file/@document.DocumentId?mode=download">@document.Title <small class="text-muted">@document.Category</small></a> }</div> }
+</div>
+
+@code {
+    private List<IBrowserFile> selectedFiles = [];
+    private Dictionary<string, string> titles = new();
+    private Dictionary<string, string> categories = new();
+    private Dictionary<string, string?> descriptions = new();
+    private List<Document>? documents;
+    private List<Document> sharedDocuments = [];
+    private List<User> users = [];
+    private int shareDocumentId; private int shareUserId;
+    private string search = ""; private string category = ""; private string? error; private string? success; private bool uploading; private int currentUserId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        int.TryParse(state.User.FindFirstValue(ClaimTypes.NameIdentifier), out currentUserId);
+        await LoadDocuments();
+        users = await UserService.GetAllUsersAsync();
+        sharedDocuments = await DocumentService.GetSharedWithMeAsync(currentUserId);
+    }
+
+    private void SelectFiles(InputFileChangeEventArgs args)
+    {
+        selectedFiles = args.GetMultipleFiles(20).ToList();
+        titles = selectedFiles.ToDictionary(f => f.Name, f => Path.GetFileNameWithoutExtension(f.Name));
+        categories = selectedFiles.ToDictionary(f => f.Name, _ => DocumentCategories.Other);
+        descriptions = selectedFiles.ToDictionary(f => f.Name, _ => (string?)null);
+        error = success = null;
+    }
+
+    private async Task UploadFiles()
+    {
+        uploading = true; error = success = null;
+        try
+        {
+            foreach (var file in selectedFiles)
+            {
+                await using var stream = file.OpenReadStream(25 * 1024 * 1024);
+                await DocumentService.UploadAsync(new DocumentUploadRequest { Content = stream, FileName = file.Name, ContentType = file.ContentType, Title = titles[file.Name], Category = categories[file.Name], Description = descriptions[file.Name] }, currentUserId);
+            }
+            success = $"Uploaded {selectedFiles.Count} file(s).";
+            selectedFiles.Clear();
+            await LoadDocuments();
+        }
+        catch (Exception ex) { error = ex is UnauthorizedAccessException ? "You are not authorized for that document association." : ex.Message; }
+        finally { uploading = false; }
+    }
+
+    private async Task LoadDocuments() { if (currentUserId > 0) documents = (await DocumentService.SearchAsync(new DocumentQuery { Search = search, Category = category }, currentUserId)).Items.ToList(); }
+    private async Task Delete(int id) { if (await DocumentService.DeleteAsync(id, currentUserId)) { success = "Document deleted."; await LoadDocuments(); } else error = "You are not authorized to delete this document."; }
+    private async Task ShareDocument() { try { if (shareDocumentId == 0 || shareUserId == 0) throw new InvalidOperationException("Select a document and recipient."); await DocumentService.ShareAsync(shareDocumentId, currentUserId, shareUserId); success = "Document shared."; } catch (Exception ex) { error = ex.Message; } }
+    private static string FormatSize(long bytes) => bytes < 1024 ? $"{bytes} B" : bytes < 1024 * 1024 ? $"{bytes / 1024d:0.0} KB" : $"{bytes / 1024d / 1024d:0.0} MB";
+}
