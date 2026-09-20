@@ -1,50 +1,74 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report
+- Version change: unratified template -> 1.0.0
+- Modified principles: five template placeholders -> five ContosoDashboard principles
+- Added sections: Project Constraints; Development Workflow
+- Removed sections: none
+- Follow-up TODO: confirm the original ratification date
+-->
+
+# ContosoDashboard Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Layered, Testable Design
+Application behavior MUST remain separated into models, data access, services, and UI
+pages. New business rules MUST live in services or other independently testable units
+rather than being duplicated in components. This keeps the training application easy to
+understand and preserves a migration path for infrastructure changes.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Authorization at Every Data Boundary
+Every protected page MUST require authentication, and every service operation that reads
+or changes user-scoped data MUST verify the requesting user's authorization. Project,
+task, profile, and future document access MUST enforce membership, ownership, or role
+rules before returning data. This prevents insecure direct object references and teaches
+defense in depth.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Offline-First and Abstraction-Friendly Infrastructure
+The training application MUST run locally without cloud service dependencies. Infrastructure
+that may change during production migration MUST be accessed through interfaces and
+dependency injection where practical. Local implementations MUST remain replaceable by
+cloud implementations without changing business rules or UI behavior.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Requirements Drive Verifiable Delivery
+Feature work MUST begin with a testable specification and an implementation plan before
+tasks are generated. Requirements MUST use measurable acceptance criteria, and each task
+MUST identify its owning user story or cross-cutting purpose. Changes MUST be validated
+with the narrowest relevant automated check available before completion.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Training Scope and Explicit Simplicity
+The project MUST favor clear, minimal implementations that support the training objective
+over production-scale complexity. Features MUST document security, operational, or
+production limitations when they use mock behavior. Production deployment claims MUST NOT
+be made for code that relies on mock authentication, development database initialization,
+or other training-only mechanisms.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Project Constraints
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+The application MUST target ASP.NET Core 8 with Blazor Server and Entity Framework Core,
+using SQL Server LocalDB for the offline training environment. Seed data and mock cookie
+authentication are permitted for training but MUST NOT be treated as production identity
+or data-protection solutions. Protected routes MUST use authorization-aware routing, and
+security-sensitive response headers MUST remain enabled unless a documented exception is
+approved.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+## Development Workflow
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+Feature work MUST follow the repository's Spec Kit flow: specify the user need, clarify
+material ambiguity, plan the technical approach, generate dependency-ordered tasks, and
+implement against those tasks. Before implementation, the specification, plan, and tasks
+MUST be reviewed for consistency. Changes that affect authentication, authorization,
+storage, or shared data models MUST include focused regression coverage or a documented
+manual validation path when automated coverage is unavailable.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution is the governing project guidance for Spec Kit planning and implementation.
+Amendments MUST describe the affected principles or sections, explain the rationale, update
+the version and amendment date, and preserve a migration note when existing work no longer
+conforms. Versioning follows semantic versioning: MAJOR for incompatible governance changes,
+MINOR for new or materially expanded principles, and PATCH for clarifications or wording-only
+changes. Every feature review MUST check compliance with the constitution, and unresolved
+violations MUST be recorded before implementation proceeds.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: TODO(RATIFICATION_DATE): confirm original adoption date | **Last Amended**: 2026-09-19
