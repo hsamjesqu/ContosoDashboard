@@ -23,10 +23,10 @@ metadata, and see the document in their document list with the captured metadata
 
 **Acceptance Scenarios**:
 
-1. **Given** a signed-in employee and a supported file no larger than 25 MB, **When** the
-   employee supplies a title and category and submits the upload, **Then** the document is
-   stored and appears in the employee's document list with its title, category, size, type,
-   upload time, and uploader.
+1. **Given** a signed-in employee and one or more supported files no larger than 25 MB each,
+  **When** the employee supplies a title and category for every file and submits the upload,
+  **Then** each document is stored and appears in the employee's document list with its
+  title, category, size, type, upload time, and uploader.
 2. **Given** an upload in progress, **When** the file is being transferred, **Then** the
    employee sees progress and receives a clear success or failure message when processing
    finishes.
@@ -83,14 +83,15 @@ according to their permissions.
 
 **Acceptance Scenarios**:
 
-1. **Given** a user owns a document, **When** the user shares it with selected users or a
-   team, **Then** recipients receive an in-app notification and see it in a “Shared with Me”
-   view.
+1. **Given** a user owns a document, **When** the user shares it with selected users or,
+  for a project document, the existing project team, **Then** recipients receive an in-app
+  notification and see it in a “Shared with Me” view.
 2. **Given** a document is associated with a project, **When** a project team member opens
    that project, **Then** the member can view and download the project's accessible documents.
-3. **Given** a task has an associated project, **When** a user views the task, **Then** the
-   user can view related documents and upload a document that inherits the task's project
-   association.
+3. **Given** a task has an associated project, **When** a user opens the task-detail page,
+  **Then** the user can view related documents and upload a document that inherits the
+  task's project association; the feature MUST provide this task-detail page because the
+  current application has only a task list.
 4. **Given** a new document is added to a project, **When** project notifications are
    enabled, **Then** authorized project members receive an in-app notification.
 5. **Given** the dashboard is opened, **When** the user has uploaded documents, **Then** a
@@ -131,6 +132,8 @@ those reports.
   access is revoked.
 - A replacement upload must preserve valid metadata and access rules if the new file fails
   validation.
+- Deleting a document must not remove its audit history before the applicable retention period
+  ends.
 - Search, lists, and reports must return empty states rather than errors when no matching
   documents or activity exist.
 - An unavailable local storage location must produce a clear failure without saving partial
@@ -141,7 +144,8 @@ those reports.
 ### Functional Requirements
 
 - **FR-001**: The system MUST allow signed-in users to upload one or more files in a single
-  upload session.
+  upload session. Each file MUST have its own title and category before submission, and the
+  upload experience MAY provide editable batch defaults to reduce repetitive entry.
 - **FR-002**: The system MUST accept PDF, Word, Excel, PowerPoint, text, JPEG, and PNG files
   up to 25 MB per file and MUST reject other file types or larger files with clear messages.
 - **FR-003**: The system MUST require a document title and category from the predefined
@@ -152,7 +156,9 @@ those reports.
 - **FR-005**: The system MUST capture upload time, uploader, file size, and file type for
   every accepted document.
 - **FR-006**: The system MUST complete a malware and virus safety check before making an
-  uploaded file available to users.
+  uploaded file available to users. If scanning is unavailable or incomplete, the system
+  MUST reject the upload, explain that scanning could not be completed, and must not make
+  the file or its metadata available.
 - **FR-007**: The system MUST store uploaded files outside publicly accessible application
   content and MUST prevent user-supplied names from controlling storage paths.
 - **FR-008**: The system MUST use unique, non-guessable storage locations and MUST save the
@@ -170,15 +176,18 @@ those reports.
 - **FR-014**: Document owners MUST be able to edit title, description, category, and tags and
   replace the file; owners MUST be able to delete their documents after confirmation.
 - **FR-015**: Project managers MUST be able to delete documents associated with their projects.
-- **FR-016**: Document owners MUST be able to share documents with selected users or teams,
-  and recipients MUST receive an in-app notification and see shared documents in a dedicated
-  view.
-- **FR-017**: The system MUST integrate documents with project views, task views, dashboard
-  recent-document information, dashboard document counts, and existing notifications.
+- **FR-016**: Document owners MUST be able to share non-project documents with selected users
+  and project documents with the existing project team. Recipients MUST receive an in-app
+  notification and see shared documents in a dedicated view.
+- **FR-017**: The system MUST integrate documents with project views, a task-detail page,
+  dashboard recent-document information, dashboard document counts, and existing
+  notifications. The feature MUST add the task-detail page required to view and attach
+  related documents.
 - **FR-018**: The system MUST notify authorized project members when a new project document
   is added, subject to their notification preferences.
 - **FR-019**: The system MUST record uploads, downloads, deletions, and shares with the actor,
-  document, action, and timestamp.
+  document, action, and timestamp, and MUST retain each activity record for the lifetime of
+  the related document and at least 12 months after the activity occurs.
 - **FR-020**: Administrators MUST be able to generate reports for document types, active
   uploaders, and access patterns; other users MUST be denied access to those reports.
 - **FR-021**: The system MUST provide progress and completion feedback for uploads and clear
@@ -190,9 +199,11 @@ those reports.
   tags, file type, file size, storage location, uploader, upload time, and optional project
   and task associations.
 - **Document Share**: A permission relationship connecting a document to a recipient user or
-  team, including the sharing actor, date, and current access state.
+  the existing project team, including the sharing actor, date, and current access state.
 - **Document Activity**: An audit record for an upload, download, deletion, replacement, or
-  share, including actor, document, action, and timestamp.
+  share, including actor, document, action, timestamp, and retention state. Activity records
+  remain available for at least 12 months after the activity and are not deleted immediately
+  when the related document is deleted.
 - **Project Document Association**: The relationship that makes a document visible to
   authorized members of a project.
 - **Task Document Association**: The relationship connecting a document to a task and its
@@ -225,12 +236,20 @@ those reports.
   notification preferences remain the source of identity and authorization decisions.
 - The initial release is web-only and supports the existing offline training environment;
   external collaboration systems and mobile applications are out of scope.
+- Multi-file uploads create one document record per file; batch defaults are convenience
+  values and do not replace per-file title and category validation.
+- Task integration includes creating the task-detail page because the existing application
+  currently provides only a task list.
+- Document activity records are retained for the document lifetime and at least 12 months
+  after the activity occurs; retention configuration and indefinite archival are out of scope.
 - Local storage is available to the training environment, and files are retained until an
   authorized deletion occurs.
-- Malware scanning is available as a local or replaceable security capability; files that
-  cannot be scanned are not made available.
+- Malware scanning is available as a local or replaceable security capability; uploads are
+  rejected when scanning is unavailable or incomplete.
 - Document identifiers remain integer values for consistency with existing application data,
   while categories remain stored as text values.
+- Team sharing reuses existing project membership; a new reusable team or department group
+  management capability is not required for this release.
 - Version history, recovery/trash, collaborative editing, approval workflows, templates,
   quotas, and external SharePoint or OneDrive integration are out of scope for this release.
 - The feature is intended for the stated 8-10 week training implementation window; the
